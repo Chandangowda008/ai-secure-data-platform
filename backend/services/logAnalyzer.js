@@ -4,14 +4,13 @@ import { processInChunks } from "../utils/chunkProcessor.js";
 const MAX_LINES = Number(process.env.MAX_ANALYZE_LINES || 50000);
 const CHUNK_SIZE = Number(process.env.ANALYZE_CHUNK_SIZE || 500);
 
-function buildFinding(type, risk, line, message, match, category) {
+function buildFinding(type, risk, line, message, match) {
   return {
     type,
     risk,
     line,
     message,
     match,
-    category,
   };
 }
 
@@ -25,8 +24,7 @@ function detectExceptionPatterns(line, lineNumber) {
         "high",
         lineNumber,
         "Exception detail exposed in logs",
-        line.trim().slice(0, 140),
-        "error_leak"
+        line.trim().slice(0, 140)
       )
     );
   }
@@ -38,8 +36,7 @@ function detectExceptionPatterns(line, lineNumber) {
         "medium",
         lineNumber,
         "Error context leaked to logs",
-        line.trim().slice(0, 140),
-        "error_leak"
+        line.trim().slice(0, 140)
       )
     );
   }
@@ -51,8 +48,7 @@ function detectExceptionPatterns(line, lineNumber) {
         "high",
         lineNumber,
         "Stack trace frame detected",
-        line.trim().slice(0, 140),
-        "error_leak"
+        line.trim().slice(0, 140)
       )
     );
   }
@@ -70,8 +66,7 @@ function detectSuspiciousPatterns(line, lineNumber) {
         "medium",
         lineNumber,
         "Suspicious query-like input observed in logs",
-        line.trim().slice(0, 140),
-        "suspicious_activity"
+        line.trim().slice(0, 140)
       )
     );
   }
@@ -83,8 +78,7 @@ function detectSuspiciousPatterns(line, lineNumber) {
         "high",
         lineNumber,
         "Path traversal or command injection indicator found",
-        line.trim().slice(0, 140),
-        "suspicious_activity"
+        line.trim().slice(0, 140)
       )
     );
   }
@@ -99,8 +93,7 @@ function detectFailedLogin(line, lineNumber) {
       "low",
       lineNumber,
       "Failed authentication attempt logged",
-      line.trim().slice(0, 140),
-      "suspicious_activity"
+      line.trim().slice(0, 140)
     );
   }
 

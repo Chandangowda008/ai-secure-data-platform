@@ -23,11 +23,3 @@ export function calculateRisk(findings = []) {
     risk_level: riskLevel,
   };
 }
-
-export function summarizeRiskByType(findings = []) {
-  return findings.reduce((accumulator, finding) => {
-    const key = finding.type;
-    accumulator[key] = (accumulator[key] || 0) + 1;
-    return accumulator;
-  }, {});
-}
