@@ -22,11 +22,25 @@ describe("POST /api/analyze", () => {
     expect(typeof response.body.risk_score).toBe("number");
     expect(["low", "medium", "high"]).toContain(response.body.risk_level);
     expect(Array.isArray(response.body.insights)).toBe(true);
+    expect(Array.isArray(response.body.recommended_actions)).toBe(true);
 
     const apiKeyFinding = response.body.findings.find((item) => item.type === "api_key");
     expect(apiKeyFinding).toBeTruthy();
-    expect(apiKeyFinding.risk).toBe("critical");
+    expect(apiKeyFinding.risk).toBe("high");
     expect(apiKeyFinding.line).toBe(2);
+
+    const emailFinding = response.body.findings.find((item) => item.type === "email");
+    expect(emailFinding).toBeTruthy();
+    expect(emailFinding.risk).toBe("low");
+    expect(emailFinding.line).toBe(1);
+
+    expect(response.body.recommended_actions).toContain("Avoid storing plain text passwords in logs");
+    expect(response.body.recommended_actions).toContain(
+      "Store API keys in environment variables or secret managers"
+    );
+    expect(response.body.recommended_actions).toContain(
+      "Mask personally identifiable information (PII) in logs"
+    );
   });
 
   it("returns validation error for invalid input type", async () => {

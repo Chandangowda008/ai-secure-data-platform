@@ -24,6 +24,9 @@ describe("logAnalyzer", () => {
 
     expect(result.findings.some((item) => item.type === "api_key" && item.line === 2)).toBe(true);
     expect(result.findings.some((item) => item.type === "stack_trace" && item.line === 5)).toBe(true);
+    expect(
+      result.findings.some((item) => item.type === "email" && item.risk === "low" && item.line === 1)
+    ).toBe(true);
   });
 
   it("counts failed login attempts in metadata", async () => {

@@ -1,21 +1,26 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 :root {
-  --bg-start: #f7f4eb;
-  --bg-end: #f2ebe4;
-  --ink: #1f2730;
-  --muted: #586271;
-  --panel: #fffefb;
-  --border: #dbd0c4;
-  --accent: #0f766e;
-  --danger: #c0351e;
-  --high: #e17100;
-  --medium: #ba8e12;
-  --line: #2f3540;
+  --bg-start: #edf3f7;
+  --bg-end: #e5edf3;
+  --ink: #111c2a;
+  --muted: #445268;
+  --panel: #f8fcff;
+  --panel-strong: #ffffff;
+  --border: #c9d6e4;
+  --accent: #0e7490;
+  --danger: #b42318;
+  --high: #c56a00;
+  --medium: #9a7b08;
+  --line: #1f2a3d;
+  --shadow-soft: 0 10px 30px rgba(24, 40, 72, 0.08);
+  --shadow-hard: 0 20px 40px rgba(12, 23, 45, 0.16);
 
   font-family: "Space Grotesk", sans-serif;
   color: var(--ink);
-  background: linear-gradient(145deg, var(--bg-start), var(--bg-end));
+  background: radial-gradient(circle at 15% -20%, #d2ecf9 0, transparent 45%),
+    radial-gradient(circle at 85% 120%, #d4e5ff 0, transparent 45%),
+    linear-gradient(145deg, var(--bg-start), var(--bg-end));
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -28,6 +33,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  color: var(--ink);
 }
 
 h1,

@@ -37,12 +37,12 @@ Output fields:
 - `risk_level` (`low`, `medium`, `high`)
 
 ## AI-powered insights
-The system generates concrete, high-signal insights using rule-based intelligence by default, including examples like:
+The system generates concrete, high-signal insights using Ollama-enhanced interpretation with rule-based fallback, including examples like:
 - API key exposed in logs
 - Multiple failed login attempts detected
 - Sensitive user data logged in plain text
 
-Optional OpenAI-based enrichment is supported through environment flags.
+The AI layer enhances interpretation only. Detection and risk scoring remain deterministic and rule-based.
 
 ## Backend architecture
 
@@ -169,16 +169,15 @@ If needed, set `VITE_API_BASE_URL` in frontend env to backend URL.
 - `examples/sample.log`
 - `examples/sample.txt`
 
-## Optional OpenAI configuration
+## Optional Ollama configuration
 In `backend/.env`:
 
 ```env
-ENABLE_OPENAI_INSIGHTS=true
-OPENAI_API_KEY=your_openai_key
-OPENAI_MODEL=gpt-4.1-mini
+OLLAMA_MODEL=llama3
+OLLAMA_HOST=http://127.0.0.1:11434
 ```
 
-If disabled/unavailable, rule-based insights are returned.
+If Ollama is unavailable, rule-based insights and actions are returned.
 
 ## Quick verification
 1. Start backend and frontend.
@@ -204,12 +203,11 @@ MAX_UPLOAD_BYTES=10485760
 JSON_LIMIT=10mb
 ```
 
-Optional (for OpenAI enrichment):
+Optional (for Ollama enrichment):
 
 ```env
-ENABLE_OPENAI_INSIGHTS=true
-OPENAI_API_KEY=your_openai_key
-OPENAI_MODEL=gpt-4.1-mini
+OLLAMA_MODEL=llama3
+OLLAMA_HOST=http://127.0.0.1:11434
 ```
 
 Optional (if frontend is hosted on a different domain):

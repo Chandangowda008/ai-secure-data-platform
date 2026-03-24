@@ -1,5 +1,3 @@
-import OpenAI from "openai";
-
 function countByType(findings) {
   return findings.reduce((accumulator, finding) => {
     accumulator[finding.type] = (accumulator[finding.type] || 0) + 1;
@@ -54,61 +52,4 @@ export function generateRuleBasedInsights(findings, analysisMeta = {}) {
   }
 
   return insights;
-}
-
-function isOpenAIEnabled() {
-  return (
-    process.env.ENABLE_OPENAI_INSIGHTS === "true" &&
-    typeof process.env.OPENAI_API_KEY === "string" &&
-    process.env.OPENAI_API_KEY.length > 20
-  );
-}
-
-async function generateOpenAIInsights(findings, summaryText) {
-  const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const topFindings = findings.slice(0, 20).map((item) => ({
-    type: item.type,
-    risk: item.risk,
-    line: item.line,
-    message: item.message,
-  }));
-
-  const prompt = [
-    "You are a security log triage assistant.",
-    "Produce up to 3 concise, actionable insights.",
-    "Avoid generic phrasing.",
-    `Summary context: ${summaryText}`,
-    `Findings: ${JSON.stringify(topFindings)}`,
-  ].join("\n");
-
-  const response = await client.responses.create({
-    model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
-    input: prompt,
-  });
-
-  const rawText = response.output_text || "";
-  return rawText
-    .split("\n")
-    .map((line) => line.replace(/^[-*\d.\s]+/, "").trim())
-    .filter(Boolean)
-    .slice(0, 3);
-}
-
-export async function generateInsights(findings, summaryText, analysisMeta = {}) {
-  const ruleBasedInsights = generateRuleBasedInsights(findings, analysisMeta);
-
-  if (!isOpenAIEnabled()) {
-    return ruleBasedInsights;
-  }
-
-  try {
-    const modelInsights = await generateOpenAIInsights(findings, summaryText);
-    if (modelInsights.length === 0) {
-      return ruleBasedInsights;
-    }
-
-    return [...ruleBasedInsights, ...modelInsights];
-  } catch (error) {
-    return ruleBasedInsights;
-  }
 }

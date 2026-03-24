@@ -1,19 +1,19 @@
 const patternCatalog = [
   {
     type: "email",
-    risk: "medium",
+    risk: "low",
     regex: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
     message: "Email address exposed in logs",
   },
   {
     type: "phone_number",
-    risk: "medium",
+    risk: "low",
     regex: /\b(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b/g,
     message: "Phone number exposed in logs",
   },
   {
     type: "api_key",
-    risk: "critical",
+    risk: "high",
     regex: /\b(?:sk-[A-Za-z0-9]{16,}|(?:api[_-]?key|access[_-]?key)\s*[:=]\s*["']?[A-Za-z0-9\-_]{16,})\b/gi,
     message: "API key exposed in logs",
   },
@@ -21,13 +21,13 @@ const patternCatalog = [
     type: "password",
     risk: "critical",
     regex: /\b(?:password|passwd|pwd)\s*[:=]\s*["']?[^\s"']{4,}/gi,
-    message: "Password-like value detected",
+    message: "Plain text password exposed in logs",
   },
   {
     type: "token",
     risk: "high",
     regex: /\b(?:token|jwt|auth[_-]?token|bearer)\s*[:=]\s*["']?[A-Za-z0-9\-_.=]{8,}/gi,
-    message: "Authentication token detected",
+    message: "Authentication token exposed in logs",
   },
   {
     type: "private_key_material",

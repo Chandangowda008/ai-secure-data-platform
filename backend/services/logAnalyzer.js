@@ -45,7 +45,7 @@ function detectExceptionPatterns(line, lineNumber) {
     findings.push(
       buildFinding(
         "stack_trace",
-        "high",
+        "medium",
         lineNumber,
         "Stack trace frame detected",
         line.trim().slice(0, 140)

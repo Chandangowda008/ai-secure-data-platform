@@ -1,6 +1,6 @@
 import { analyzeLogContent } from "../services/logAnalyzer.js";
 import { calculateRisk } from "../services/riskEngine.js";
-import { generateInsights } from "../services/aiInsights.js";
+import { generateAIEnhancements } from "../utils/ollamaAI.js";
 import { buildSummary } from "../utils/summaryBuilder.js";
 
 function buildRawContent(req) {
@@ -27,18 +27,19 @@ export async function analyzeController(req, res) {
   const rawContent = buildRawContent(req);
 
   const analysis = await analyzeLogContent(rawContent);
+  const findings = normalizeFindings(analysis.findings);
   const risk = calculateRisk(analysis.findings);
   const summary = buildSummary(analysis.findings, risk);
-  const insights = await generateInsights(analysis.findings, summary, {
-    failedLogins: analysis.metadata.failedLogins,
-  });
+  const ai = await generateAIEnhancements(rawContent, findings, risk.risk_level);
 
   res.status(200).json({
     summary,
-    findings: normalizeFindings(analysis.findings),
+    findings,
     risk_score: risk.risk_score,
     risk_level: risk.risk_level,
-    insights,
+    insights: ai.insights,
+    recommended_actions: ai.recommended_actions,
+    explanation: ai.explanation,
     metadata: analysis.metadata,
   });
 }

@@ -76,6 +76,7 @@ export default function App() {
       <header className="hero-header">
         <p className="kicker">AI Gateway + Data Scanner + Log Analyzer + Risk Engine</p>
         <h1>AI Secure Data Intelligence Platform</h1>
+        <p className="hero-subtitle">Powered by AI-driven security analysis engine</p>
         <p>
           Scan .log/.txt data for sensitive exposures, hardcoded credentials, and error leaks with
           deterministic risk scoring.

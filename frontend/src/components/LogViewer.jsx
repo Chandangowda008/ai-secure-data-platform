@@ -20,7 +20,8 @@ function getLineClass(risk) {
   if (risk === "critical") return "log-line line-critical";
   if (risk === "high") return "log-line line-high";
   if (risk === "medium") return "log-line line-medium";
-  return "log-line";
+  if (risk === "low") return "log-line line-low";
+  return "log-line line-neutral";
 }
 
 export default function LogViewer({ sourceText, findings }) {
