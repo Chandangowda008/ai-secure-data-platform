@@ -1,0 +1,9 @@
+2026-03-24 10:00:00 INFO user_email=john.doe@corp.com action=login
+2026-03-24 10:00:02 WARN failed login for user=john.doe@corp.com from ip=10.0.0.4
+2026-03-24 10:00:05 WARN failed login for user=john.doe@corp.com from ip=10.0.0.4
+2026-03-24 10:00:06 WARN failed login for user=john.doe@corp.com from ip=10.0.0.4
+2026-03-24 10:00:08 ERROR api_key=sk-1234567890abcdefghijklmnop
+2026-03-24 10:00:11 ERROR password=TopSecret987
+2026-03-24 10:00:13 ERROR Exception: Database connection failed
+    at DbClient.query (db.js:88:12)
+    at AuthService.login (auth.js:52:9)
