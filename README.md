@@ -186,3 +186,37 @@ If disabled/unavailable, rule-based insights are returned.
 3. Confirm findings include `type`, `risk`, and `line`.
 4. Confirm risk score follows severity scoring map.
 5. Confirm insights are concrete and non-generic.
+
+## Deploy on Vercel (single project: frontend + backend)
+This repository is configured to deploy both frontend and backend in one Vercel project using `vercel.json`.
+
+### Steps
+1. Import this GitHub repository in Vercel.
+2. Keep project root at repository root.
+3. Deploy (Vercel will build frontend and backend based on `vercel.json`).
+
+### Environment variables in Vercel
+Set these in Project Settings -> Environment Variables:
+
+```env
+NODE_ENV=production
+MAX_UPLOAD_BYTES=10485760
+JSON_LIMIT=10mb
+```
+
+Optional (for OpenAI enrichment):
+
+```env
+ENABLE_OPENAI_INSIGHTS=true
+OPENAI_API_KEY=your_openai_key
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+Optional (if frontend is hosted on a different domain):
+
+```env
+CORS_ORIGIN=https://your-frontend-domain.vercel.app
+VITE_API_BASE_URL=https://your-backend-domain.vercel.app
+```
+
+If frontend and backend are deployed together in the same Vercel project, you do not need `VITE_API_BASE_URL`; the frontend will call `/api/analyze` on the same domain.
