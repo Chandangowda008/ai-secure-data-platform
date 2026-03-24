@@ -73,8 +73,6 @@ export default function ResultsPanel({ result }) {
       </section>
     );
   }
-
-  // Handle blocked response
   if (result.action === "blocked") {
     return (
       <section className="panel results-panel">
@@ -123,7 +121,6 @@ export default function ResultsPanel({ result }) {
         </div>
       </div>
 
-      {/* Correlations */}
       {result.correlations?.length > 0 && (
         <div className="correlations-section">
           <h3>Cross-Log Correlations</h3>

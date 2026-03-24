@@ -43,11 +43,7 @@ export async function analyzeController(req, res) {
   const analysis = await analyzeLogContent(rawContent);
   const findings = normalizeFindings(analysis.findings);
   const risk = calculateRisk(analysis.findings);
-
-  // Policy evaluation
   const policy = evaluatePolicy(risk.risk_level, findings, options);
-
-  // If blocked, return early
   if (policy.action === "blocked") {
     res.status(403).json({
       content_type: contentType,
@@ -59,18 +55,12 @@ export async function analyzeController(req, res) {
     });
     return;
   }
-
-  // Apply masking if policy says so
   const outputFindings =
     policy.action === "masked" ? maskFindings(findings) : findings;
 
   const maskedContent =
     policy.action === "masked" ? maskSensitiveData(rawContent, findings) : null;
-
-  // Correlation analysis
   const correlations = correlateFindings(findings);
-
-  // Finding type frequency counts
   const findingTypeCounts = {};
   for (const f of findings) {
     findingTypeCounts[f.type] = (findingTypeCounts[f.type] || 0) + 1;
@@ -78,8 +68,6 @@ export async function analyzeController(req, res) {
 
   const summary = buildSummary(analysis.findings, risk);
   const ai = await generateAIEnhancements(rawContent, findings, risk.risk_level);
-
-  // Structured logging
   const durationMs = req.startTime ? Date.now() - req.startTime : null;
   if (process.env.NODE_ENV !== "test") {
     console.log(

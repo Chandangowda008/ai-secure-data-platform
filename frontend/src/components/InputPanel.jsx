@@ -116,7 +116,6 @@ export default function InputPanel({
         </div>
       )}
 
-      {/* Analysis Options */}
       <div className="options-bar">
         <label className="option-toggle">
           <input

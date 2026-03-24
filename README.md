@@ -9,7 +9,8 @@ This platform acts as:
 - Risk Engine
 
 ## What it does
-- Processes `.log` and `.txt` input from text box or file upload
+- Processes text, logs, SQL snippets, chat messages, and file uploads
+- Supports file uploads: `.log`, `.txt`, `.pdf`, `.docx`, `.doc`
 - Parses logs line-by-line
 - Detects:
   - Emails
@@ -17,6 +18,9 @@ This platform acts as:
   - API keys (`sk-...` and common key formats)
   - Passwords
   - Tokens
+  - Private key material
+  - Credential pairs (`username + password` patterns)
+  - IP addresses
   - Stack traces / exceptions
   - Failed login patterns
   - Suspicious injection/path traversal patterns
@@ -24,6 +28,8 @@ This platform acts as:
   - `type`
   - `risk` (`low`, `medium`, `high`, `critical`)
   - `line`
+  - `message`
+  - `match`
 
 ## Risk engine
 Scoring rules:
@@ -37,7 +43,7 @@ Output fields:
 - `risk_level` (`low`, `medium`, `high`)
 
 ## AI-powered insights
-The system generates concrete, high-signal insights using Ollama-enhanced interpretation with rule-based fallback, including examples like:
+The system generates concrete, high-signal insights using Groq-enhanced interpretation with rule-based fallback, including examples like:
 - API key exposed in logs
 - Multiple failed login attempts detected
 - Sensitive user data logged in plain text
@@ -65,7 +71,6 @@ backend/
 │   ├── errorHandler.js
 │   ├── upload.js
 │   └── validateAnalyzeRequest.js
-├── .env.example
 ├── .gitignore
 ├── index.js
 └── package.json
@@ -73,12 +78,18 @@ backend/
 
 ## Frontend
 React + Vite UI provides:
-- Text input mode or file upload mode (`.log`, `.txt`)
+- Text/Log mode, File Upload mode, and Live Chat mode
+- File upload support for `.log`, `.txt`, `.pdf`, `.docx`, `.doc`
 - Analyze button
+- Policy toggles:
+  - Mask Sensitive Data
+  - Block High Risk
 - Results panel with:
   - Highlighted risk level
   - Findings with line numbers
   - Insights panel
+  - Recommended actions
+  - Correlation insights
 - Bonus: risky-line highlighting with severity colors
   - Red: critical
   - Orange: high
@@ -87,24 +98,33 @@ React + Vite UI provides:
 ## API
 ### POST `/api/analyze`
 
-Request (text/log):
+Request (text/log/sql/chat):
 
 ```json
 {
   "input_type": "text",
-  "content": "2026-03-24 ERROR api_key=sk-1234567890abcdefghijklmnop"
+  "content": "2026-03-24 ERROR api_key=sk-1234567890abcdefghijklmnop",
+  "options": {
+    "mask": false,
+    "block_high_risk": false
+  }
 }
 ```
+
+Supported `input_type`: `text`, `log`, `file`, `sql`, `chat`
 
 Request (file):
 - `multipart/form-data`
 - field `input_type=file`
-- field `file=<.log or .txt file>`
+- field `file=<.log | .txt | .pdf | .docx | .doc>`
+- optional field `options={"mask":true,"block_high_risk":false}`
 
-Response:
+Response (allowed/masked):
 
 ```json
 {
+  "content_type": "text",
+  "action": "allowed",
   "summary": "Critical issue: 1 API key exposure event(s) detected with overall high risk.",
   "findings": [
     {
@@ -117,9 +137,36 @@ Response:
   ],
   "risk_score": 5,
   "risk_level": "medium",
+  "correlations": [],
   "insights": [
     "API key exposed in logs (1 occurrence)."
-  ]
+  ],
+  "recommended_actions": [
+    "Rotate exposed API keys immediately"
+  ],
+  "explanation": "The content includes exposed credentials and authentication artifacts.",
+  "metadata": {
+    "total_lines": 1,
+    "analyzed_lines": 1,
+    "truncated": false,
+    "failedLogins": 0,
+    "finding_type_counts": {
+      "api_key": 1
+    }
+  }
+}
+```
+
+Response (blocked by policy):
+
+```json
+{
+  "content_type": "text",
+  "action": "blocked",
+  "reason": "Input blocked by policy: risk level is high or critical findings detected.",
+  "risk_score": 14,
+  "risk_level": "high",
+  "findings_count": 4
 }
 ```
 
@@ -132,10 +179,27 @@ cd backend
 npm install
 ```
 
-Create env file:
+Create `backend/.env`:
 
-```powershell
-Copy-Item .env.example .env
+```env
+# required for AI enrichment (Groq)
+GROQ_API_KEY=your_groq_api_key_here
+
+# optional
+PORT=5000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:5173
+
+# request limits
+MAX_UPLOAD_BYTES=10485760
+MAX_CONTENT_CHARS=1000000
+JSON_LIMIT=10mb
+RATE_LIMIT_MAX=100
+MAX_ANALYZE_LINES=50000
+ANALYZE_CHUNK_SIZE=500
+
+# AI model (optional)
+AI_MODEL=llama-3.1-8b-instant
 ```
 
 Run backend:
@@ -156,35 +220,41 @@ npm run dev
 
 Frontend URL: `http://localhost:5173`
 
-If needed, set `VITE_API_BASE_URL` in frontend env to backend URL.
+If needed, create `frontend/.env` and set:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000
+```
 
 ## Security and scalability controls
 - Input validation for `input_type` and content/file mode
-- Upload guardrails for extension and file size
+- Upload guardrails for extension, MIME type, and file size
 - JSON size limits
 - Chunked async line processing to reduce event loop blocking
 - Stable error handling for malformed input and unsupported uploads
+- Optional policy actions: block high-risk requests or mask sensitive output
 
 ## Example test inputs
 - `examples/sample.log`
 - `examples/sample.txt`
 
-## Optional Ollama configuration
-In `backend/.env`:
+## Optional AI configuration
+In `backend/.env` you can also set:
 
 ```env
-OLLAMA_MODEL=llama3
-OLLAMA_HOST=http://127.0.0.1:11434
+AI_MODEL=llama-3.1-8b-instant
 ```
 
-If Ollama is unavailable, rule-based insights and actions are returned.
+If `GROQ_API_KEY` is missing or the AI call fails, the app automatically falls back to rule-based insights and actions.
 
 ## Quick verification
 1. Start backend and frontend.
 2. Analyze `examples/sample.log` (paste or upload).
 3. Confirm findings include `type`, `risk`, and `line`.
-4. Confirm risk score follows severity scoring map.
-5. Confirm insights are concrete and non-generic.
+4. Enable `Mask Sensitive Data` and verify masked output is returned.
+5. Enable `Block High Risk` and verify high-risk input returns `403` with `action=blocked`.
+6. Confirm risk score follows severity scoring map.
+7. Confirm insights and recommended actions are concrete and non-generic.
 
 ## Deploy on Vercel (single project: frontend + backend)
 This repository is configured to deploy both frontend and backend in one Vercel project using `vercel.json`.
@@ -200,14 +270,18 @@ Set these in Project Settings -> Environment Variables:
 ```env
 NODE_ENV=production
 MAX_UPLOAD_BYTES=10485760
+MAX_CONTENT_CHARS=1000000
 JSON_LIMIT=10mb
+RATE_LIMIT_MAX=100
+MAX_ANALYZE_LINES=50000
+ANALYZE_CHUNK_SIZE=500
 ```
 
-Optional (for Ollama enrichment):
+Optional (for AI enrichment):
 
 ```env
-OLLAMA_MODEL=llama3
-OLLAMA_HOST=http://127.0.0.1:11434
+GROQ_API_KEY=your_groq_api_key_here
+AI_MODEL=llama-3.1-8b-instant
 ```
 
 Optional (if frontend is hosted on a different domain):

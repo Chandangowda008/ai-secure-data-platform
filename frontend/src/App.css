@@ -391,7 +391,7 @@
   }
 }
 
-/* ── Drag & Drop Zone ─────────────────────────────────────── */
+
 .drop-zone {
   position: relative;
 }
@@ -428,7 +428,7 @@
   margin-top: 0.3rem;
 }
 
-/* ── Options Bar ──────────────────────────────────────────── */
+
 .options-bar {
   display: flex;
   gap: 1.2rem;
@@ -457,7 +457,7 @@
   cursor: pointer;
 }
 
-/* ── Progress Bar ─────────────────────────────────────────── */
+
 .progress-bar-container {
   margin-top: 0.6rem;
   height: 5px;
@@ -479,7 +479,7 @@
   100% { transform: translateX(350%); }
 }
 
-/* ── Findings Header & Controls ───────────────────────────── */
+
 .findings-header {
   display: flex;
   justify-content: space-between;
@@ -520,7 +520,7 @@
   border-color: #8cc8ea;
 }
 
-/* ── Action Badges ────────────────────────────────────────── */
+
 .results-badges {
   display: flex;
   flex-direction: column;
@@ -555,7 +555,7 @@
   border-color: #f6b7aa;
 }
 
-/* ── Blocked Response ─────────────────────────────────────── */
+
 .blocked-reason {
   margin-top: 0.5rem;
   padding: 0.65rem 0.85rem;
@@ -579,7 +579,7 @@
   color: #4a3035;
 }
 
-/* ── Correlations ─────────────────────────────────────────── */
+
 .correlations-section {
   margin-top: 1rem;
   padding-top: 0.8rem;
@@ -620,7 +620,7 @@
   background: #fff8f0;
 }
 
-/* ── Chat Panel ───────────────────────────────────────────── */
+
 .chat-panel {
   border: 1px solid var(--border);
   background: var(--panel);
@@ -704,7 +704,7 @@
   color: #a03424;
 }
 
-/* Chat result details inside system bubble */
+
 .chat-result {
   margin-top: 0.5rem;
   padding-top: 0.5rem;
@@ -809,7 +809,7 @@
   50% { opacity: 1; }
 }
 
-/* Chat input bar */
+
 .chat-input-bar {
   display: flex;
   gap: 0.5rem;

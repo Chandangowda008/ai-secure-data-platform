@@ -1,16 +1,3 @@
-/**
- * File Parser
- *
- * Extracts text content from different file formats (TXT, LOG, PDF, DOCX).
- */
-
-/**
- * Parse file buffer contents based on file extension.
- *
- * @param {Buffer} buffer – File buffer from multer.
- * @param {string} originalname – Original filename with extension.
- * @returns {Promise<string>} Extracted text content.
- */
 export async function parseFileContent(buffer, originalname = "") {
   const extension = originalname.toLowerCase().split(".").pop();
 

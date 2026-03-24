@@ -1,6 +1,3 @@
-/**
- * Sanitize raw input by stripping dangerous content.
- */
 function sanitizeContent(raw) {
   if (typeof raw !== "string") return raw;
   return raw
@@ -14,12 +11,10 @@ export function validateAnalyzeRequest(req, res, next) {
 
   if (!allowedInputTypes.has(inputType)) {
     res.status(400).json({
-      error: "Invalid input_type. Use text, log, file, or sql.",
+      error: "Invalid input_type. Use text, log, file, sql, or chat.",
     });
     return;
   }
-
-  // Validate & normalize options
   if (options !== undefined && (typeof options !== "object" || Array.isArray(options))) {
     res.status(400).json({
       error: "options must be a plain object.",
@@ -30,7 +25,6 @@ export function validateAnalyzeRequest(req, res, next) {
   req.body.options = {
     mask: false,
     block_high_risk: false,
-    log_analysis: true,
     ...(options || {}),
   };
 
@@ -64,8 +58,6 @@ export function validateAnalyzeRequest(req, res, next) {
       });
       return;
     }
-
-    // Sanitize text content
     req.body.content = sanitizeContent(content);
   }
 

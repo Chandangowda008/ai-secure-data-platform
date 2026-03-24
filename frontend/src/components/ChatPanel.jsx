@@ -72,19 +72,16 @@ export default function ChatPanel({ options }) {
 
             {msg.result && (
               <div className="chat-result">
-                {/* Risk badge */}
                 <div className={`chat-risk-badge ${getRiskClass(msg.result.risk_level)}`}>
                   {msg.result.risk_level?.toUpperCase()} — Score {msg.result.risk_score}
                 </div>
 
-                {/* Action */}
                 {msg.result.action && (
                   <span className={`chat-action-pill chat-action-${msg.result.action}`}>
                     {msg.result.action.toUpperCase()}
                   </span>
                 )}
 
-                {/* Findings summary */}
                 {msg.result.findings?.length > 0 && (
                   <div className="chat-findings">
                     <strong>Findings ({msg.result.findings.length}):</strong>
@@ -105,7 +102,6 @@ export default function ChatPanel({ options }) {
                   </div>
                 )}
 
-                {/* Insights */}
                 {msg.result.insights?.length > 0 && (
                   <div className="chat-insights">
                     <strong>Insights:</strong>

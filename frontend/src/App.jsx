@@ -60,8 +60,6 @@ export default function App() {
         }
 
         const apiResultPromise = analyzeFile(selectedFile, options);
-
-        // Only read raw text for text-based files
         let rawText = "";
         if (isTextReadable(selectedFile)) {
           rawText = await readTextFile(selectedFile);
@@ -104,7 +102,6 @@ export default function App() {
 
       {mode === "chat" ? (
         <>
-          {/* Show only the mode switch header for chat mode */}
           <InputPanel
             mode={mode}
             textValue={content}

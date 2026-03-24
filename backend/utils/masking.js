@@ -1,9 +1,3 @@
-/**
- * Data Masking Utility
- *
- * Replaces sensitive values found by the scanner with masked equivalents.
- */
-
 const maskingStrategies = {
   email(value) {
     const atIndex = value.indexOf("@");
@@ -53,13 +47,7 @@ function defaultMask(value) {
   return `${value.slice(0, 2)}${"*".repeat(Math.min(value.length - 2, 8))}`;
 }
 
-/**
- * Mask sensitive matches inside the raw text.
- *
- * @param {string} text  – The original raw input text.
- * @param {Array}  findings – Array of finding objects with `type` and `match`.
- * @returns {string} The text with sensitive matches replaced.
- */
+
 export function maskSensitiveData(text, findings = []) {
   if (!text || findings.length === 0) return text;
 
@@ -81,12 +69,7 @@ export function maskSensitiveData(text, findings = []) {
   return masked;
 }
 
-/**
- * Mask the `match` field inside each finding object.
- *
- * @param {Array} findings – Array of finding objects.
- * @returns {Array} New array with masked `match` values.
- */
+
 export function maskFindings(findings = []) {
   return findings.map((finding) => {
     if (!finding.match) return { ...finding };
