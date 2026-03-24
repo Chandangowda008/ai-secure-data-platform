@@ -1,5 +1,6 @@
 import { useState } from "react";
 import InputPanel from "./components/InputPanel.jsx";
+import ChatPanel from "./components/ChatPanel.jsx";
 import ResultsPanel from "./components/ResultsPanel.jsx";
 import LogViewer from "./components/LogViewer.jsx";
 import { analyzeFile, analyzeTextOrLog } from "./services/api.js";
@@ -22,6 +23,8 @@ function readTextFile(file) {
   });
 }
 
+const allowedTextExtensions = [".log", ".txt"];
+
 export default function App() {
   const [mode, setMode] = useState("text");
   const [content, setContent] = useState(initialSample);
@@ -30,6 +33,15 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [sourceText, setSourceText] = useState(initialSample);
+  const [options, setOptions] = useState({
+    mask: false,
+    block_high_risk: false,
+  });
+
+  function isTextReadable(file) {
+    const name = file.name.toLowerCase();
+    return allowedTextExtensions.some((ext) => name.endsWith(ext));
+  }
 
   async function handleAnalyze() {
     setError("");
@@ -38,19 +50,26 @@ export default function App() {
     try {
       if (mode === "file") {
         if (!selectedFile) {
-          throw new Error("Please select a .log or .txt file before analyzing.");
+          throw new Error("Please select a file before analyzing.");
         }
 
+        const acceptedExtensions = [".log", ".txt", ".pdf", ".docx", ".doc"];
         const extension = selectedFile.name.toLowerCase();
-        if (!extension.endsWith(".log") && !extension.endsWith(".txt")) {
-          throw new Error("Unsupported file type. Please upload .log or .txt files.");
+        if (!acceptedExtensions.some((ext) => extension.endsWith(ext))) {
+          throw new Error("Unsupported file type. Please upload .log, .txt, .pdf, or .docx files.");
         }
 
-        const [apiResult, rawText] = await Promise.all([
-          analyzeFile(selectedFile),
-          readTextFile(selectedFile),
-        ]);
+        const apiResultPromise = analyzeFile(selectedFile, options);
 
+        // Only read raw text for text-based files
+        let rawText = "";
+        if (isTextReadable(selectedFile)) {
+          rawText = await readTextFile(selectedFile);
+        } else {
+          rawText = `[Binary file: ${selectedFile.name}]`;
+        }
+
+        const apiResult = await apiResultPromise;
         setResult(apiResult);
         setSourceText(rawText);
       } else {
@@ -59,7 +78,7 @@ export default function App() {
         }
 
         const inputType = mode === "text" ? "text" : "log";
-        const apiResult = await analyzeTextOrLog(inputType, content);
+        const apiResult = await analyzeTextOrLog(inputType, content, options);
         setResult(apiResult);
         setSourceText(content);
       }
@@ -78,29 +97,55 @@ export default function App() {
         <h1>AI Secure Data Intelligence Platform</h1>
         <p className="hero-subtitle">Powered by AI-driven security analysis engine</p>
         <p>
-          Scan .log/.txt data for sensitive exposures, hardcoded credentials, and error leaks with
-          deterministic risk scoring.
+          Scan text, logs, files, SQL, or chat messages for sensitive exposures, hardcoded credentials,
+          and error leaks with deterministic risk scoring.
         </p>
       </header>
 
-      <InputPanel
-        mode={mode}
-        textValue={content}
-        selectedFile={selectedFile}
-        loading={loading}
-        onModeChange={(nextMode) => {
-          setMode(nextMode);
-          setError("");
-        }}
-        onTextChange={setContent}
-        onFileChange={setSelectedFile}
-        onAnalyze={handleAnalyze}
-      />
+      {mode === "chat" ? (
+        <>
+          {/* Show only the mode switch header for chat mode */}
+          <InputPanel
+            mode={mode}
+            textValue={content}
+            selectedFile={selectedFile}
+            loading={loading}
+            options={options}
+            onModeChange={(nextMode) => {
+              setMode(nextMode);
+              setError("");
+            }}
+            onTextChange={setContent}
+            onFileChange={setSelectedFile}
+            onOptionsChange={setOptions}
+            onAnalyze={handleAnalyze}
+          />
+          <ChatPanel options={options} />
+        </>
+      ) : (
+        <>
+          <InputPanel
+            mode={mode}
+            textValue={content}
+            selectedFile={selectedFile}
+            loading={loading}
+            options={options}
+            onModeChange={(nextMode) => {
+              setMode(nextMode);
+              setError("");
+            }}
+            onTextChange={setContent}
+            onFileChange={setSelectedFile}
+            onOptionsChange={setOptions}
+            onAnalyze={handleAnalyze}
+          />
 
-      {error ? <p className="error-banner">{error}</p> : null}
+          {error ? <p className="error-banner">{error}</p> : null}
 
-      <ResultsPanel result={result} />
-      <LogViewer sourceText={sourceText} findings={result?.findings || []} />
+          <ResultsPanel result={result} />
+          <LogViewer sourceText={sourceText} findings={result?.findings || []} />
+        </>
+      )}
     </main>
   );
 }

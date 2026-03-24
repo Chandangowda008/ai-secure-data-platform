@@ -41,6 +41,12 @@ const patternCatalog = [
     regex: /\b(?:username|user|login)\s*[:=]\s*[^\s]+\s+.*\b(?:password|passwd|pwd)\s*[:=]\s*[^\s]+/gi,
     message: "Username and password pair found in one line",
   },
+  {
+    type: "ip_address",
+    risk: "low",
+    regex: /\b\d{1,3}(\.\d{1,3}){3}\b/g,
+    message: "IP address detected in logs",
+  },
 ];
 
 function normalizeMatch(matchValue, maxLength = 120) {

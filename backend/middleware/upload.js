@@ -1,6 +1,14 @@
 import multer from "multer";
 
-const allowedExtensions = [".log", ".txt"];
+const allowedExtensions = [".log", ".txt", ".pdf", ".docx", ".doc"];
+
+const allowedMimeTypes = new Set([
+  "text/plain",
+  "application/octet-stream",
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/msword",
+]);
 
 function hasAllowedExtension(filename = "") {
   const lower = filename.toLowerCase();
@@ -15,11 +23,16 @@ export const upload = multer({
     fileSize: Number(process.env.MAX_UPLOAD_BYTES || 10 * 1024 * 1024),
   },
   fileFilter: (req, file, callback) => {
-    if (hasAllowedExtension(file.originalname)) {
-      callback(null, true);
+    if (!hasAllowedExtension(file.originalname)) {
+      callback(new Error("Only .log, .txt, .pdf, and .docx files are allowed"));
       return;
     }
 
-    callback(new Error("Only .log and .txt files are allowed"));
+    if (!allowedMimeTypes.has(file.mimetype)) {
+      callback(new Error(`Unsupported file type: ${file.mimetype}`));
+      return;
+    }
+
+    callback(null, true);
   },
 });

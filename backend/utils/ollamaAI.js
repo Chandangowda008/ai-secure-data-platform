@@ -1,9 +1,7 @@
-import { createRequire } from "node:module";
+import Groq from "groq-sdk";
 
 import { generateRuleBasedInsights } from "../services/aiInsights.js";
 import { generateRecommendedActions } from "../services/recommendedActions.js";
-
-const require = createRequire(import.meta.url);
 
 function dedupeList(items = []) {
   const unique = new Set();
@@ -146,15 +144,22 @@ export async function generateAIEnhancements(logContent, findings, riskLevel) {
   const fallbackExplanation = buildFallbackExplanation(findings || [], riskLevel);
 
   try {
-    const ollama = require("ollama");
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error("GROQ_API_KEY not configured");
+    }
+
+    const groq = new Groq({ apiKey });
     const prompt = buildPrompt(logContent, findings, riskLevel);
 
-    const response = await ollama.chat({
-      model: process.env.OLLAMA_MODEL || "llama3",
+    const response = await groq.chat.completions.create({
+      model: process.env.AI_MODEL || "llama-3.1-8b-instant",
       messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      max_tokens: 1024,
     });
 
-    const content = response?.message?.content || "";
+    const content = response?.choices?.[0]?.message?.content || "";
     const parsed = parseAIResponse(content);
 
     return {

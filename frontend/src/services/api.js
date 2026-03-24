@@ -5,13 +5,13 @@ const API_BASE_URL = (
 async function parseResponse(response) {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const message = payload.error || "Failed to analyze input";
+    const message = payload.error || payload.reason || "Failed to analyze input";
     throw new Error(message);
   }
   return payload;
 }
 
-export async function analyzeTextOrLog(inputType, content) {
+export async function analyzeTextOrLog(inputType, content, options = {}) {
   const response = await fetch(`${API_BASE_URL}/api/analyze`, {
     method: "POST",
     headers: {
@@ -20,16 +20,18 @@ export async function analyzeTextOrLog(inputType, content) {
     body: JSON.stringify({
       input_type: inputType,
       content,
+      options,
     }),
   });
 
   return parseResponse(response);
 }
 
-export async function analyzeFile(file) {
+export async function analyzeFile(file, options = {}) {
   const formData = new FormData();
   formData.append("input_type", "file");
   formData.append("file", file);
+  formData.append("options", JSON.stringify(options));
 
   const response = await fetch(`${API_BASE_URL}/api/analyze`, {
     method: "POST",
