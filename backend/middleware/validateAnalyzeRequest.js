@@ -5,8 +5,18 @@ function sanitizeContent(raw) {
     .replace(/\0/g, "");
 }
 
+function isPlainObject(value) {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    Object.getPrototypeOf(value) === Object.prototype
+  );
+}
+
 export function validateAnalyzeRequest(req, res, next) {
-  const { input_type: inputType, content, options } = req.body || {};
+  const { input_type: inputType, content } = req.body || {};
+  let { options } = req.body || {};
   const allowedInputTypes = new Set(["text", "log", "file", "sql", "chat"]);
 
   if (!allowedInputTypes.has(inputType)) {
@@ -15,7 +25,18 @@ export function validateAnalyzeRequest(req, res, next) {
     });
     return;
   }
-  if (options !== undefined && (typeof options !== "object" || Array.isArray(options))) {
+  if (typeof options === "string") {
+    try {
+      options = JSON.parse(options);
+    } catch {
+      res.status(400).json({
+        error: "options must be valid JSON when sent as a string.",
+      });
+      return;
+    }
+  }
+
+  if (options !== undefined && !isPlainObject(options)) {
     res.status(400).json({
       error: "options must be a plain object.",
     });

@@ -32,7 +32,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
-  const [sourceText, setSourceText] = useState(initialSample);
+  const [sourceText, setSourceText] = useState("");
   const [options, setOptions] = useState({
     mask: false,
     block_high_risk: false,
@@ -83,6 +83,7 @@ export default function App() {
     } catch (analyzeError) {
       setError(analyzeError.message || "Analysis failed.");
       setResult(null);
+      setSourceText("");
     } finally {
       setLoading(false);
     }
@@ -111,6 +112,8 @@ export default function App() {
             onModeChange={(nextMode) => {
               setMode(nextMode);
               setError("");
+              setResult(null);
+              setSourceText("");
             }}
             onTextChange={setContent}
             onFileChange={setSelectedFile}
@@ -130,6 +133,8 @@ export default function App() {
             onModeChange={(nextMode) => {
               setMode(nextMode);
               setError("");
+              setResult(null);
+              setSourceText("");
             }}
             onTextChange={setContent}
             onFileChange={setSelectedFile}

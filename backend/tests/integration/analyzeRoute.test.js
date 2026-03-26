@@ -66,4 +66,19 @@ describe("POST /api/analyze", () => {
     expect(response.body.findings.length).toBeGreaterThan(0);
     expect(response.body.findings.some((item) => item.type === "token")).toBe(true);
   });
+
+  it("accepts stringified options for multipart file input", async () => {
+    const response = await request(app)
+      .post("/api/analyze")
+      .field("input_type", "file")
+      .field("options", JSON.stringify({ mask: true }))
+      .attach("file", Buffer.from("user_email=test@example.com\npassword=abc12345"), {
+        filename: "sample.log",
+        contentType: "text/plain",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.action).toBe("masked");
+    expect(response.body.findings.length).toBeGreaterThan(0);
+  });
 });
